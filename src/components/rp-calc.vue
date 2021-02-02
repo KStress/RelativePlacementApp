@@ -33,13 +33,19 @@
         <tr v-for="ct in contestants" :key="ct.id">
           <td
             scope="row"
-            v-if="selectedContestant === undefined || selectedContestant.id !== ct.id"
+            v-if="
+              selectedContestant === undefined ||
+              selectedContestant.id !== ct.id
+            "
           >
             {{ ct.bib }}
           </td>
           <td
             scope="row"
-            v-if="selectedContestant !== undefined && selectedContestant.id === ct.id"
+            v-if="
+              selectedContestant !== undefined &&
+              selectedContestant.id === ct.id
+            "
           >
             <input
               type="text"
@@ -50,7 +56,10 @@
           </td>
           <td
             v-on:click="editContestant(ct.id)"
-            v-if="selectedContestant === undefined || selectedContestant.id !== ct.id"
+            v-if="
+              selectedContestant === undefined ||
+              selectedContestant.id !== ct.id
+            "
             class="pointer"
           >
             {{ ct.name }} <i class="fa fa-pencil fa-xs"></i>
@@ -105,7 +114,12 @@
             </button>
           </td>
         </tr>
-        <tr v-if="selectedContestant === undefined || selectedContestant.id !== nextContestantId">
+        <tr
+          v-if="
+            selectedContestant === undefined ||
+            selectedContestant.id !== nextContestantId
+          "
+        >
           <td scope="row">
             <button
               class="btn btn-success btn-sm"
@@ -130,35 +144,20 @@
         </tr>
       </tbody>
     </table>
-    <div class="mb-3" v-if="selectedJudge" style="width: 300px">
-      <input
-        type="text"
-        class="form-control"
-        v-model="selectedJudge.name"
-        style="width: 300px"
-      />
-      <button
-        class="btn btn-success btn-sm mt-1"
-        v-on:click="saveJudge"
-        title="Save Judge"
-      >
-        <i class="fa fa-check fa-xs"> Save</i>
-      </button>
-      <button
-        class="btn btn-danger btn-sm mt-1 ml-1"
-        v-on:click="cancelJudge"
-        title="Cancel Save Judge"
-      >
-        <i class="fa fa-check fa-xs"> Cancel</i>
-      </button>
-    </div>
+    <JudgeDetail
+      :judge="selectedJudge"
+      @save="saveJudge"
+      @cancel="cancelJudge"
+      v-if="selectedJudge"
+    />
   </div>
 </template>
 
 <script>
+import JudgeDetail from "@/components/judge-detail";
+
 export default {
   name: "RPCalc",
-  //props: {},
   data() {
     return {
       contestName: "Contest Display Name",
@@ -259,6 +258,9 @@ export default {
       nextContestantId: -1,
     };
   },
+  components: {
+    JudgeDetail,
+  },
   methods: {
     //Contestants
     addContestant: function () {
@@ -284,10 +286,8 @@ export default {
 
       this.selectedContestant = undefined;
     },
-    deleteContestant: function(ctId) {
-      let deleteIdx = this.contestants.findIndex(
-        (item) => item.id === ctId
-      );
+    deleteContestant: function (ctId) {
+      let deleteIdx = this.contestants.findIndex((item) => item.id === ctId);
       this.contestants.splice(deleteIdx, 1);
     },
     editContestant: function (ctId) {
@@ -312,10 +312,8 @@ export default {
     cancelJudge: function () {
       this.selectedJudge = undefined;
     },
-    deleteJudge: function(jgId) {
-      let deleteIdx = this.judges.findIndex(
-        (item) => item.id === jgId
-      );
+    deleteJudge: function (jgId) {
+      let deleteIdx = this.judges.findIndex((item) => item.id === jgId);
       this.judges.splice(deleteIdx, 1);
     },
     editJudge: function (jgId) {
@@ -323,21 +321,19 @@ export default {
         ...this.judges.filter((item) => item.id === jgId)[0],
       };
     },
-    saveJudge: function () {
-      if (this.selectedJudge.name.trim().length === 0) {
+    saveJudge: function (judge) {
+      if (judge.name.trim().length === 0) {
         this.selectedJudge = undefined;
         return;
       }
 
-      if (this.selectedJudge.id > this.nextJudgeId) {
-        let matchIdx = this.judges.findIndex(
-          (item) => item.id === this.selectedJudge.id
-        );
-        this.judges[matchIdx] = { ...this.selectedJudge };
+      if (judge.id > this.nextJudgeId) {
+        let matchIdx = this.judges.findIndex((item) => item.id === judge.id);
+        this.judges[matchIdx] = { ...judge };
       } else {
         this.judges.push({
           id: this.nextJudgeId,
-          name: this.selectedJudge.name,
+          name: judge.name,
         });
         this.nextJudgeId--;
       }
@@ -365,13 +361,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-/* table th,
-table td {
-  text-align: left;
-} */
-.pointer {
-  cursor: pointer;
-}
-</style>
